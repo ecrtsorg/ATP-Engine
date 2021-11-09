@@ -532,7 +532,7 @@ void TestAtp::testAtp_trafficProfile() {
     // remove the wait for field from the config object
     config.clear_wait_for();
     // delete the packet configuration from the config object
-    config.release_pattern();
+    config.clear_pattern();
     // change name
     config.set_name("testAtp_trafficProfile_checker");
     // set the checker to monitor test_profile
