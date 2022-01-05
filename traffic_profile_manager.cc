@@ -1570,8 +1570,8 @@ uint64_t TrafficProfileManager::cloneStream(const uint64_t root,
   const uint64_t cloneNum { clonedStreams.at(root).first };
   for (auto& p : getStream(root)) {
     // profile pointer
-    auto* from { getProfile(p.first) };
-    const auto &ts { timeScaleFactor.at(p.first) };
+    auto* from = getProfile(p.first);
+    const auto &ts = timeScaleFactor.at(p.first);
     // build profile from source config
     configureProfile(*from->getConfig(), ts, false, cloneNum, master_id);
     // store clone root

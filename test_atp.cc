@@ -788,10 +788,10 @@ TestAtp::testAtp_tpm() {
 
     /* uniqueStream */
     config_0.add_wait_for(profile_0 + " ACTIVATION");
-    auto reset { [this, &config_0, &config_1]() {
+    auto reset = [this, &config_0, &config_1]() {
         tpm->reset();
         tpm->configureProfile(config_0); tpm->configureProfile(config_1);
-    } };
+    };
     /* 1. First usage should return Root Profile ID of Original */
     reset(); tpm->streamCacheUpdate();
     uint64_t orig_id { tpm->profileId(profile_0) };
@@ -815,16 +815,16 @@ TestAtp::testAtp_tpm() {
     CPPUNIT_ASSERT(orig_id != clone1_id); CPPUNIT_ASSERT(orig != clone1);
     CPPUNIT_ASSERT(clone0_id != clone1_id); CPPUNIT_ASSERT(clone0 != clone1);
     /* 3. Clone state should be independent */
-    auto diff_conf { [this](const uint64_t id0, const uint64_t id1) {
+    auto diff_conf = [this](const uint64_t id0, const uint64_t id1) {
         tpm->addressStreamReconfigure(id0, 0x11, 0x123, Profile::READ);
         tpm->addressStreamReconfigure(id1, 0xFF, 0x321, Profile::READ);
-    } };
+    };
     /* 3.1 Original activated, one Packet per send, Original terminated,
            Clones not terminated */
     diff_conf(orig_id, clone0_id); orig->activate();
     locked = false ; next = time = 0;
     for (uint64_t txn { 0 }; txn < config_0.fifo().total_txn(); ++txn) {
-        auto packets { tpm->send(locked, next, time) };
+        auto packets = tpm->send(locked, next, time);
         CPPUNIT_ASSERT(packets.size() == 1);
         for (auto &packet : packets) {
             Packet *p { packet.second }; p->set_cmd(Command::READ_RESP);
@@ -849,7 +849,7 @@ TestAtp::testAtp_tpm() {
     diff_conf(orig_id, clone0_id); orig->activate(); clone0->activate();
     locked = false ; next = time = 0;
     for (uint64_t txn { 0 }; txn < config_0.fifo().total_txn(); ++txn) {
-        auto packets { tpm->send(locked, next, time) };
+        auto packets = tpm->send(locked, next, time);
         CPPUNIT_ASSERT(packets.size() == 2);
         Packet *p0 { packets.begin()->second },
                *p1 { (++packets.begin())->second };
@@ -867,7 +867,7 @@ TestAtp::testAtp_tpm() {
     }
     // Handle remaining transactions
     for (uint64_t txn { 0 }; txn < config_1.fifo().total_txn(); ++txn) {
-        auto packets { tpm->send(locked, next, time) };
+        auto packets = tpm->send(locked, next, time);
         CPPUNIT_ASSERT(packets.size() == 2);
         for (auto &packet : packets) {
             Packet *p { packet.second }; p->set_cmd(Command::READ_RESP);
@@ -889,7 +889,7 @@ TestAtp::testAtp_tpm() {
     orig->activate(); clone0->activate();
     locked = false ; next = time = 0;
     for (uint64_t txn { 0 }; txn < 16; ++txn) {
-        auto packets { tpm->send(locked, next, time) };
+        auto packets = tpm->send(locked, next, time);
         for (auto &packet : packets) {
             Packet *p { packet.second }; p->set_cmd(Command::READ_RESP);
             tpm->receive(time, p);
