@@ -240,7 +240,7 @@ void Logger::_log(const Level lvl,T head, Tail&&... tail){
 // global logger macros - change LOG_LEVEL to hard code verbosity
 #define LOG_LEVEL Logger::ERROR_LEVEL
 #define ERROR(...)  do { if (Logger::get()->getLevel()<=Logger::ERROR_LEVEL) \
-        Logger::get()->log(Logger::ERROR_LEVEL,__VA_ARGS__); \
+        { Logger::get()->log(Logger::ERROR_LEVEL,__VA_ARGS__); } \
         if (Logger::get()->getExitOnErrors()) exit(1); } while (false)
 #define WARN(...)   do { if (Logger::get()->getLevel()<=Logger::WARNING_LEVEL) \
         Logger::get()->log(Logger::WARNING_LEVEL,__VA_ARGS__); } while (false)
