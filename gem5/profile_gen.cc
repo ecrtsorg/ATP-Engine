@@ -42,6 +42,9 @@ ProfileGen::ProfileGen(const ProfileGenParams* p) :
         initOnly(p->init_only), disableWatchdog(p->disable_watchdog),
         disableMemCheck(p->disable_mem_check) {
 
+    fatal_if(configFiles.empty(), "ProfileGen::%s At least one ATP "
+             "configuration file must be provided", __func__);
+
     // allocate ATP masters ports
     port.reserve(p->port_port_connection_count);
     for (int i = 0; i < p->port_port_connection_count; ++i) {
@@ -109,11 +112,13 @@ void ProfileGen::init() {
     // load time unit from TPM
     timeUnit = tpm.getTimeResolution();
 
-    // register the masters by requesting a MastedID per configured master
+    // retrieve ATP master names and order them
     const auto masters{ tpm.getMasters() };
+    fatal_if(masters.empty(), "ProfileGen::%s At least one ATP master must be "
+             "defined in ATP configuration files", __func__);
     std::set<std::string> masterNames{ masters.begin(), masters.end() };
-    // register masters and associate with ports
 
+    // register masters in gem5 and associate with ports
     for (auto& m : masterNames) {
         RequestorID id = system->getGlobalRequestorId(m);
         // register port number to current master
